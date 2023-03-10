@@ -8,7 +8,15 @@
     },
 
     setup() {
-      const title = ref('')
+
+      const form = reactive({
+        title: ''
+      })
+
+      const errors = reactive({
+        title: ''
+      })
+
       const update = ref(false)
       const currentTodo = ref({});
 
@@ -32,11 +40,21 @@
       }
 
       const onSubmit = () => {
-        if (!title.value && title.value === '') return
+        console.log(form.title);
+        if (!form.title && form.title === '') {
+          errors.title = "pleas input todo list"
+          return
+        } 
+
+        if (todoList.value.some(todo => todo.title === form.title)) {
+          errors.title = "todo list is already exist"
+          return
+        }
+
         if (update.value) {
           const todos = todoList.value.map(todo => {
           if (todo.id === currentTodo.value.id) {
-            return {...todo, title: title.value}
+            return {...todo, title: form.title}
           }
           return todo
         })
@@ -48,7 +66,7 @@
         } else {
             todoList.value = [...todoList.value, {
             id: Math.floor(Math.random() * 100),
-            title,
+            title: form.title,
             completed: false,
           }]
         }
@@ -56,12 +74,14 @@
       }
 
       const handleUpdate = (payload) => {
-        title.value = payload.title;
+        form.title = payload.title;
         update.value = true;
         currentTodo.value = payload;
       }
 
       const saveTodo = () => {
+        form.title = ''
+        errors.title = ''
         localStorage.setItem("todos", JSON.stringify(todoList.value))
       }
 
@@ -80,15 +100,33 @@
         return todoList.value.filter(todo => !todo.completed).length;
       })
 
+      const completedTodo = computed(() => {
+        return todoList.value.filter(todo => todo.completed).length;
+      })
+
+      const handlePendingTodo = () => {
+        todoList.value = todoList.value.filter(todo => todo.completed);
+        saveTodo()
+      }
+
+      const handleCompletedTodo = () => {
+        todoList.value = todoList.value.filter(todo => !todo.completed);
+        saveTodo()
+      }
+
       return {
+        form,
         todoList,
         handleClear,
-        title,
         handleDetete,
         onSubmit,
         handleUpdate,
         markCompleted,
         pendingTodo,
+        errors,
+        completedTodo,
+        handlePendingTodo,
+        handleCompletedTodo
       }
     },
   }
@@ -100,17 +138,22 @@
         <h1 class="text-2xl font-bold">Todo App</h1>
         <div class="mt-4">
           <form @submit.prevent="onSubmit">
-            <div class="grid grid-cols-3">
-              <div class="col-span-2">
-                <input v-model="title" type="text" class="block w-full border h-10 px-4 py-4" placeholder="">
+            <div class="grid grid-cols-1 lg:grid-cols-3">
+              <div class="col-span-1 lg:col-span-2">
+                <input 
+                v-model="form.title"
+                 type="text" :class="[ errors.title ? 'border-red-500' : '']" class="block w-full border h-10 px-4 py-4" placeholder="">
               </div>
-              <button type="submit" class="bg-slate-500 text-white flex items-center justify-center w-full">Add Todo</button>
+              <button :disabled="!form.title" :class="[!form.title ? 'opacity-50' : 'opacity-100']" type="submit" class="bg-slate-500 text-white flex items-center justify-center w-full">Add Todo</button>
+
+              <div class="col-span-1 lg:col-span-3">
+                <span :class="[ errors.title ? 'text-red-600' : '']">{{ errors.title ? errors.title : '' }}</span>
+              </div>
             </div>
           </form>
        
-          <div class="mt-3" v-for="todo in todoList">
+          <div class="grid grid-cols-1 lg:grid-cols-3 mt-2" v-for="todo in todoList">
             <TodoItem 
-              :title="'title'"
               :todo="todo"
               :handleDetete="handleDetete"
               :handleUpdate="handleUpdate"
@@ -120,7 +163,15 @@
 
           <div class="mt-2 bg-slate-200 py-2 px-4 flex justify-between">
             <span>you have {{pendingTodo}} pending task</span>
-            <span @click="handleClear" class="cursor-pointer">clear all</span>
+            <span @click="handlePendingTodo" class="cursor-pointer">clear all pending task</span>
+          </div>
+          <div class="mt-2 bg-slate-200 py-2 px-4 flex justify-between">
+            <span>you have {{completedTodo}} completed tasks</span>
+            <span @click="handleCompletedTodo" class="cursor-pointer">clear all completed task</span>
+          </div>
+          <div class="mt-2 bg-slate-200 py-2 px-4 flex justify-between">
+            <span>you have {{todoList.length}} tasks</span>
+            <span @click="handleClear" class="cursor-pointer">clear all  task</span>
           </div>
         </div>
       </div>

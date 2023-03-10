@@ -1,12 +1,11 @@
 <script>
 export default {
- props: ['todo', 'title', 'markCompleted', 'handleUpdate', 'handleDetete'],
+ props: ['todo', 'markCompleted', 'handleUpdate', 'handleDetete'],
 }
 
 </script>
 <template>
-  <div class="grid grid-cols-3 h-10">
-    <div class="col-span-2 bg-gray-200 flex items-center py-2 px-4 text-black gap-2">
+    <div class="col-span-1 lg:col-span-2 bg-gray-200 flex items-center py-2 px-4 text-black gap-2">
       <div class="flex items-center gap-2">
         <input 
         type="checkbox" 
@@ -16,10 +15,10 @@ export default {
       </div>
     </div>
     <div class="w-full flex">
-      <button @click="handleUpdate(todo)" :disabled="todo.completed" :class="[todo.completed ? 'bg-gray-300' : 'bg-green-500']" class=" p-2 text-white w-full">edit</button>
-      <button @click="handleDetete(todo.id)" class="bg-red-500 p-2 text-white w-full">delete</button>
+      <div @click="handleUpdate(todo)" :disabled="todo.completed" :class="[todo.completed ? 'opacity-50' : 'opacity-100']" class=" bg-green-500 p-2 text-white w-full flex items-center justify-center">edit</div>
+      <div @click="handleDetete(todo.id)" :disabled="todo.completed" :class="[todo.completed ? 'opacity-50' : 'opacity-100']" class="bg-red-500 p-2 text-white w-full flex items-center justify-center">delete</div>
     </div>
-  </div>
+  
 </template>
 
 
