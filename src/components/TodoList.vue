@@ -1,13 +1,13 @@
 <script>
   import { ref, reactive, onMounted, computed } from 'vue'
+  import TodoItem  from './TodoItem.vue'
 
   export default {
-    props: {
-      msg: String
+    components: {
+      TodoItem
     },
 
-    setup(props) {
-      const message = ref(props.msg)
+    setup() {
       const title = ref('')
       const update = ref(false)
       const currentTodo = ref({});
@@ -18,13 +18,8 @@
           completed: false,
       }]
 
-      onMounted(() => {
-        const todosLists = JSON.parse(localStorage.getItem("todos")) || defaultTodo;
-        todoList.value = todosLists;
-        saveTodo()
-      })
-
-      const todoList = ref([])
+      const todosLists = JSON.parse(localStorage.getItem("todos")) || defaultTodo;
+      const todoList = ref(todosLists)
 
       const handleClear = () => {
         todoList.value = [];
@@ -43,7 +38,6 @@
           if (todo.id === currentTodo.value.id) {
             return {...todo, title: title.value}
           }
-
           return todo
         })
 
@@ -86,9 +80,7 @@
         return todoList.value.filter(todo => !todo.completed).length;
       })
 
-    
       return {
-        message,
         todoList,
         handleClear,
         title,
@@ -96,7 +88,7 @@
         onSubmit,
         handleUpdate,
         markCompleted,
-        pendingTodo
+        pendingTodo,
       }
     },
   }
@@ -115,40 +107,25 @@
               <button type="submit" class="bg-slate-500 text-white flex items-center justify-center w-full">Add Todo</button>
             </div>
           </form>
-
+       
           <div class="mt-3" v-for="todo in todoList">
-            <div class="grid grid-cols-3 h-10">
-              <div class="col-span-2 bg-gray-200 flex items-center py-2 px-4 text-black gap-2">
-                <div class="flex items-center gap-2">
-                  <input 
-                  type="checkbox" 
-                  :checked="todo.completed"
-                  @input="markCompleted(todo.id)">
-                  <h1 :class="{'iscompleted': todo.completed}">{{ todo.title }}</h1>
-                </div>
-                
-              </div>
-              <div class="w-full flex">
-                
-                <button @click="handleUpdate(todo)" :disabled="todo.completed" :class="[todo.completed ? 'bg-gray-300' : 'bg-green-500']" class=" p-2 text-white w-full">edit</button>
-                <button @click="handleDetete(todo.id)" class="bg-red-500 p-2 text-white w-full">delete</button>
-              </div>
-            </div>
+            <TodoItem 
+              :title="'title'"
+              :todo="todo"
+              :handleDetete="handleDetete"
+              :handleUpdate="handleUpdate"
+              :markCompleted="markCompleted"
+            />
           </div>
+
           <div class="mt-2 bg-slate-200 py-2 px-4 flex justify-between">
             <span>you have {{pendingTodo}} pending task</span>
             <span @click="handleClear" class="cursor-pointer">clear all</span>
           </div>
+
         </div>
       </div>
     </div>
 </template>
 <style scoped>
-.read-the-docs {
-  color: #888;
-}
-
-.iscompleted {
-  text-decoration: line-through;
-}
 </style>
