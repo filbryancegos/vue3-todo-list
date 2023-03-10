@@ -102,7 +102,7 @@
           <form @submit.prevent="onSubmit">
             <div class="grid grid-cols-3">
               <div class="col-span-2">
-                <input v-model="title" type="text" class="block w-full" placeholder="">
+                <input v-model="title" type="text" class="block w-full border h-10 px-4 py-4" placeholder="">
               </div>
               <button type="submit" class="bg-slate-500 text-white flex items-center justify-center w-full">Add Todo</button>
             </div>
@@ -122,7 +122,6 @@
             <span>you have {{pendingTodo}} pending task</span>
             <span @click="handleClear" class="cursor-pointer">clear all</span>
           </div>
-
         </div>
       </div>
     </div>
